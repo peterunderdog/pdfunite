@@ -1,7 +1,7 @@
 require 'pdfunite/version'
 require 'tmpdir'
 require 'pathname'
-require 'cocaine'
+require 'terrapin'
 require 'logger'
 
 module Pdfunite
@@ -54,11 +54,11 @@ module Pdfunite
           end
           hsh.update(:"f_#{idx}" => realpath.to_s)
         end
-        cmdline = Cocaine::CommandLine.new(binary, "#{files.keys.map(&:inspect).join(' ')} :outfile", logger: Pdfunite.logger || Logger.new(STDOUT))
+        cmdline = Terrapin::CommandLine.new(binary, "#{files.keys.map(&:inspect).join(' ')} :outfile", :swallow_stderr => true, logger: Pdfunite.logger || Logger.new(STDOUT))
         outfile = tmpdir.join('output.pdf')
         begin
           cmdline.run(files.merge(outfile: outfile.to_s))
-        rescue Cocaine::CommandNotFoundError
+        rescue Terrapin::CommandNotFoundError
           raise BinaryNotFound, "The pdfunite executable could not be found at #{binary.inspect}. Check the pdfunite README for more info."
         end
         output = outfile.binread
